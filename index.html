@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scam Detection</title>
+  <style>
+    /* Reset dan box-sizing supaya border dan padding masuk hitungan width */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      padding: 40px 10px;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      width: 100%;
+      max-width: 600px;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 25px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      font-family: inherit;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    h3 {
+      margin-top: 35px;
+      color: #444;
+    }
+
+    #result {
+      margin-top: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .scam {
+      color: #b30000;
+      background-color: #ffe6e6;
+    }
+
+    .ham {
+      color: #006600;
+      background-color: #e6ffe6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Scam Detection</h2>
+    <form id="scamForm">
+      <textarea id="emailInput" placeholder="Masukkan teks email di sini..."></textarea>
+      <button type="submit">Cek Scam</button>
+    </form>
+    <h3>Hasil Prediksi:</h3>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('scamForm');
+    const emailInput = document.getElementById('emailInput');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const emailText = emailInput.value.trim();
+      if (!emailText) {
+        result.textContent = 'Tolong masukkan teks email.';
+        result.className = '';
+        return;
+      }
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: emailText })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          result.textContent = 'Error: ' + (error.error || 'Tidak diketahui');
+          result.className = '';
+          return;
+        }
+
+        const data = await response.json();
+        result.innerHTML = `<strong>${data.prediction}</strong><br>${data.message || ''}`;
+        result.className = data.prediction === 'SCAM' ? 'scam' : 'ham';
+      } catch (error) {
+        result.textContent = 'Error saat memproses permintaan.';
+        result.className = '';
+      }
+    });
+  </script>
+</body>
+</html>

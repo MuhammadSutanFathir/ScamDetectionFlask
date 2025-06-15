@@ -49,10 +49,10 @@ def predict():
 
     if prediction == 1:
         result = "SCAM"
-        message = "Email ini terdeteksi sebagai spam. Harap berhati-hati."
+        message = "Email ini terdeteksi sebagai scam. Harap berhati-hati."
     else:
         result = "HAM"
-        message = "Email ini tidak terdeteksi sebagai spam."
+        message = "Email ini tidak terdeteksi sebagai scam."
 
     return jsonify({'prediction': result, 'message': message})
 
